@@ -140,11 +140,28 @@ class AssignmentController extends ApiMutableModelControllerBase
     public function reconfigureAction()
     {
         $legacybools = [
-            'enable',
-            'lock',
+            'blockbogons',
+            'blockpriv',
+            'dhcp6-ia-pd-send-hint',
+            'dhcp6-information-only',
+            'dhcp6_norequest_dns',
+            'dhcp6_rapid_commit',
+            'dhcp6prefixonly',
+            'dhcpd6track6allowoverride',
+            'dhcphonourmtu',
             'disablechecksumoffloading',
+            'disablelargereceiveoffloading',
             'disablesegmentationoffloading',
-            'disablelargereceiveoffloading'
+            'disablevlanhwfilter',
+            'enable',
+            'gateway_interface',
+            'hw_settings_overwrite',
+            'lock',
+            'promisc',
+        ];
+        $legacyempties = [
+            'descr',
+            'spoofmac',
         ];
         if ($this->request->isPost()) {
             $backend = new Backend();
@@ -176,6 +193,11 @@ class AssignmentController extends ApiMutableModelControllerBase
                                 unset(Config::getInstance()->object()->interfaces->$key->$legacybool);
                             }
                         }
+                        foreach ($legacyempties as $legacyempty) {
+                            if (!strlen($pending[$legacyempty] ?? '')) {
+                                Config::getInstance()->object()->interfaces->$key->$legacyempty = '';
+                            }
+                        }
                         /* advanced dhcp settings not supported, prevent settings being used */
                         foreach (
                             [
@@ -199,5 +221,15 @@ class AssignmentController extends ApiMutableModelControllerBase
             }
         }
         return ["status" => "failed"];
+    }
+
+    /**
+     * retrieve pending status
+     */
+    public function pendingAction()
+    {
+        $backend = new Backend();
+
+        return ['status' => file_exists('/tmp/.interfaces.todo') ? 'pending' : 'ok'];
     }
 }
