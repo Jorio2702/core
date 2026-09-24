@@ -783,6 +783,13 @@
                                 return row.blocklist;
                             }
                         },
+                        headerFormatters: {
+                            dnssec_status: function(column) {
+                                return '<span class="has-tooltip" data-toggle="tooltip" title="${metaVal}">${val}</span>';
+                                // <span class="has-tooltip" data-toggle="tooltip" title="${metaVal}">${val}</span>
+                                //<i class="fa-solid fa-fw fa-check-square" data-toggle="tooltip" title="{{ lang._('Enabled') }}"></i>
+                            }
+                        },
                         statusMapping: {
                             0: "query-success",
                             1: "query-info",
@@ -1013,7 +1020,8 @@
                     <th data-column-id="source" data-type="string">{{ lang._('Source') }}</th>
                     <th data-column-id="rcode" data-type="string">{{ lang._('Return Code') }}</th>
                     <th data-column-id="resolve_time_ms" data-type="string" data-formatter="resolveformatter">{{ lang._('Resolve time') }}</th>
-                    <th data-column-id="ttl" data-width="6em" data-type="string">{{ lang._('TTL') }}</th>
+                    <th data-column-id="ttl" data-width="6em" data-type="string" data-formatter="resolveformatter">{{ lang._('TTL') }}</th>
+                    <th data-column-id="dnssec_status" data-width="6em" data-type="string">{{ lang._('DNSsec status') }}</th>
                     <th data-column-id="blocklist" data-type="string" data-formatter="blocklist">{{ lang._('Blocklist') }}</th>
                     <th data-column-id="policy" data-type="string">{{ lang._('Policy') }}</th>
                     <th data-column-id="" data-width="100" data-formatter="commands" data-sortable="false">{{ lang._('Commands') }}</th>
