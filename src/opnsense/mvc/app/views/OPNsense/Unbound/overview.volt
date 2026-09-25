@@ -35,7 +35,7 @@
 
 <script>
     $(document).ready(function() {
-        let data_get_map = {'frm_UnboundReportingSettings':"/api/unbound/settings/get"};
+        let data_get_map = mapDataToFormUI({'frm_UnboundReportingSettings':"/api/unbound/settings/get"});
         mapDataToFormUI(data_get_map);
 
         $("#reconfigureAct").SimpleActionButton({
@@ -768,10 +768,20 @@
                         },
                         headerFormatters: {
                             dnssec_status: function(column) {
-                                return '{{ lang._('DNSsec Status') }} <i class="fa fa-info-circle fa-sm fa-fw text-primary" data-toggle="tooltip" title="{{ lang._('Insecure =/= bad') }}"></i>';
-                                // <span class="has-tooltip" data-toggle="tooltip" title="${metaVal}">${val}</span>
-                                //<i class="fa-solid fa-fw fa-check-square" data-toggle="tooltip" title="{{ lang._('Enabled') }}"></i>
-                                // '<i class="fa-solid fa-fw fa-check-square" data-toggle="tooltip" title="{{ lang._('blaaa') }}">{{ lang._('DNSsec Status') }}</i>'
+                                // var dnssecEnabled;
+                                // ajaxGet('/api/unbound/settings/get', {}, function (data, status) {
+                                //     console.log(data)
+                                //     dnssecEnabled = data.unbound.general.dnssec;
+                                // });
+                                // console.log(dnssecEnabled)
+                                var dnssecEnabled = data_get_map.unbound.general.dnssec;
+
+                                $("#grid-queries").bootgrid(dnssecEnabled ? "setColumns" : "unsetColumns", ['dnssec_status']);
+
+                                if (dnssecEnabled == 1) {
+                                    return '<th data-visible="true" {{ lang._('DNSsec Status') }}</th> <i class="fa fa-info-circle fa-sm fa-fw text-primary" data-toggle="tooltip" title="{{ lang._('Insecure =/= bad') }}"></i>';
+                                }
+                                return
                             }
                         },
                         formatters: {
