@@ -139,31 +139,8 @@ class AssignmentController extends ApiMutableModelControllerBase
 
     public function reconfigureAction()
     {
-        $legacybools = [
-            'blockbogons',
-            'blockpriv',
-            'dhcp6-ia-pd-send-hint',
-            'dhcp6-information-only',
-            'dhcp6_norequest_dns',
-            'dhcp6_rapid_commit',
-            'dhcp6prefixonly',
-            'dhcpd6track6allowoverride',
-            'dhcphonourmtu',
-            'disablechecksumoffloading',
-            'disablelargereceiveoffloading',
-            'disablesegmentationoffloading',
-            'disablevlanhwfilter',
-            'enable',
-            'gateway_interface',
-            'hw_settings_overwrite',
-            'lock',
-            'promisc',
-        ];
-        $legacyempties = [
-            'descr',
-            'spoofmac',
-        ];
         if ($this->request->isPost()) {
+            $this->throwReadOnly();
             $backend = new Backend();
             /***
              * Interface apply and final configuration update are separated steps to avoid
@@ -180,35 +157,27 @@ class AssignmentController extends ApiMutableModelControllerBase
                         unset(Config::getInstance()->object()->interfaces->$key);
                     } else {
                         /* update pending changes */
-                        $pending = $this->getModel()->interface->$key?->toLegacy() ?? [];
-                        foreach ($pending as $akey => $avalue) {
-                            if ($avalue !== '') {
+                        $pending = $this->getModel()->interface->$key?->toLegacy() ?? null;
+                        if ($pending !== null) {
+                            /* advanced dhcp settings not supported, prevent settings being used */
+                            $removals = [
+                                'adv_dhcp6_config_advanced',
+                                'adv_dhcp6_config_file_override',
+                                'adv_dhcp_config_advanced',
+                                'adv_dhcp_config_file_override'
+                            ];
+                            foreach (Config::getInstance()->object()->interfaces->$key->children() as $remove) {
+                                if (!in_array($remove->getName(), array_keys($pending))) {
+                                    $removals[] = $remove->getName();
+                                }
+                            }
+                            foreach ($removals as $remove) {
+                                if (isset(Config::getInstance()->object()->interfaces->$key->$remove)) {
+                                    unset(Config::getInstance()->object()->interfaces->$key->$remove);
+                                }
+                            }
+                            foreach ($pending as $akey => $avalue) {
                                 Config::getInstance()->object()->interfaces->$key->$akey = $avalue;
-                            } elseif (isset(Config::getInstance()->object()->interfaces->$key->$akey)) {
-                                unset(Config::getInstance()->object()->interfaces->$key->$akey);
-                            }
-                        }
-                        foreach ($legacybools as $legacybool) {
-                            if (empty($pending[$legacybool])) {
-                                unset(Config::getInstance()->object()->interfaces->$key->$legacybool);
-                            }
-                        }
-                        foreach ($legacyempties as $legacyempty) {
-                            if (!strlen($pending[$legacyempty] ?? '')) {
-                                Config::getInstance()->object()->interfaces->$key->$legacyempty = '';
-                            }
-                        }
-                        /* advanced dhcp settings not supported, prevent settings being used */
-                        foreach (
-                            [
-                            'adv_dhcp6_config_file_override',
-                            'adv_dhcp6_config_advanced',
-                            'adv_dhcp_config_advanced',
-                            'adv_dhcp_config_file_override'
-                            ] as $unset
-                        ) {
-                            if (isset(Config::getInstance()->object()->interfaces->$key->$unset)) {
-                                unset(Config::getInstance()->object()->interfaces->$key->$unset);
                             }
                         }
                     }
