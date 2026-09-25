@@ -766,6 +766,14 @@
 
                             return request;
                         },
+                        headerFormatters: {
+                            dnssec_status: function(column) {
+                                return '{{ lang._('DNSsec Status') }} <i class="fa fa-info-circle fa-sm fa-fw text-primary" data-toggle="tooltip" title="{{ lang._('Insecure =/= bad') }}"></i>';
+                                // <span class="has-tooltip" data-toggle="tooltip" title="${metaVal}">${val}</span>
+                                //<i class="fa-solid fa-fw fa-check-square" data-toggle="tooltip" title="{{ lang._('Enabled') }}"></i>
+                                // '<i class="fa-solid fa-fw fa-check-square" data-toggle="tooltip" title="{{ lang._('blaaa') }}">{{ lang._('DNSsec Status') }}</i>'
+                            }
+                        },
                         formatters: {
                             "timeformatter": function (column, row) {
                                 return moment.unix(row.time).local().format('YYYY-MM-DD HH:mm:ss');
@@ -781,13 +789,6 @@
                                     return row.blocklist + ' - ' + row.category;
                                 }
                                 return row.blocklist;
-                            }
-                        },
-                        headerFormatters: {
-                            dnssec_status: function(column) {
-                                return '<span class="has-tooltip" data-toggle="tooltip" title="${metaVal}">${val}</span>';
-                                // <span class="has-tooltip" data-toggle="tooltip" title="${metaVal}">${val}</span>
-                                //<i class="fa-solid fa-fw fa-check-square" data-toggle="tooltip" title="{{ lang._('Enabled') }}"></i>
                             }
                         },
                         statusMapping: {
@@ -1012,16 +1013,16 @@
                     <th data-column-id="uuid" data-type="string" data-identifier="true" data-visible="false">{{ lang._('ID') }}</th>
                     <th data-column-id="status" data-type="numeric" data-visible="false" data-formatter="statusformatter">{{ lang._('status') }}</th>
                     <th data-column-id="time" data-type="string" data-formatter="timeformatter">{{ lang._('Time') }}</th>
-                    <th data-column-id="client" data-type="string">{{ lang._('Client') }}</th>
-                    <th data-column-id="family" data-width="6em" data-visible="false" data-type="string">{{ lang._('Family') }}</th>
-                    <th data-column-id="type" data-width="6em" data-type="string">{{ lang._('Type') }}</th>
-                    <th data-column-id="domain" data-formatter="domain" data-type="string">{{ lang._('Domain') }}</th>
-                    <th data-column-id="action" data-width="6em" data-type="string">{{ lang._('Action') }}</th>
-                    <th data-column-id="source" data-type="string">{{ lang._('Source') }}</th>
-                    <th data-column-id="rcode" data-type="string">{{ lang._('Return Code') }}</th>
-                    <th data-column-id="resolve_time_ms" data-type="string" data-formatter="resolveformatter">{{ lang._('Resolve time') }}</th>
-                    <th data-column-id="ttl" data-width="6em" data-type="string" data-formatter="resolveformatter">{{ lang._('TTL') }}</th>
-                    <th data-column-id="dnssec_status" data-width="6em" data-type="string">{{ lang._('DNSsec status') }}</th>
+                    <th data-column-id="client" data-width="6em" data-type="string">{{ lang._('Client') }}</th>
+                    <th data-column-id="family" data-width="8em" data-visible="false" data-type="string">{{ lang._('Family') }}</th>
+                    <th data-column-id="type" data-width="5em" data-type="string">{{ lang._('Type') }}</th>
+                    <th data-column-id="domain" data-width="8em" data-formatter="domain" data-type="string">{{ lang._('Domain') }}</th>
+                    <th data-column-id="action" data-width="4em" data-type="string">{{ lang._('Action') }}</th>
+                    <th data-column-id="source" data-width="6em" data-type="string">{{ lang._('Source') }}</th>
+                    <th data-column-id="rcode" data-width="7em" data-type="string">{{ lang._('Return Code') }}</th>
+                    <th data-column-id="resolve_time_ms" data-width="8em" data-type="string" data-formatter="resolveformatter">{{ lang._('Resolve time') }}</th>
+                    <th data-column-id="ttl" data-width="4em" data-type="string">{{ lang._('TTL') }}</th>
+                    <th data-column-id="dnssec_status" data-width="11em" data-type="string">{{ lang._('DNSsec Status') }}</th>
                     <th data-column-id="blocklist" data-type="string" data-formatter="blocklist">{{ lang._('Blocklist') }}</th>
                     <th data-column-id="policy" data-type="string">{{ lang._('Policy') }}</th>
                     <th data-column-id="" data-width="100" data-formatter="commands" data-sortable="false">{{ lang._('Commands') }}</th>
