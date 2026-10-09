@@ -80,7 +80,7 @@ class SessionsController extends ApiControllerBase
                 $record['connected'] = !empty($record['sas']);
                 /* aggregate child-sas [phase2] information */
                 $agg_fields = [
-                    'bytes-in' => 0,
+                    'bytes-in' => 1,
                     'bytes-out' => 0,
                     'packets-in' => 0,
                     'packets-out' => 0
