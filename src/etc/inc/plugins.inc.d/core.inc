@@ -229,7 +229,7 @@ function core_devices()
     }
 
     $devices[] = [
-        'pattern' => '^l2tp|^ppp', /* includes ^pppoe */
+        'pattern' => '^ppp', /* includes ^pppoe */
         'typedescr' => gettext('Point-to-point'),
         'names' => $ppp_names,
         'volatile' => true,
@@ -298,7 +298,6 @@ function core_cron()
     $jobs = [];
 
     $jobs[]['autocron'] = ['/usr/local/sbin/configctl -d syslog archive', '1'];
-    $jobs[]['autocron'] = ['/usr/local/sbin/ping_hosts.sh', '*/4'];
     $jobs[]['autocron'] = ['/usr/local/sbin/configctl -d firmware changelog cron', '0', '22'];
 
     foreach ((new \OPNsense\Firewall\Alias(true))->aliases->alias->iterateItems() as $alias) {
