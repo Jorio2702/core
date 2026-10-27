@@ -117,29 +117,74 @@ class DiagnosticsController extends ApiControllerBase
     {
         if ($this->request->isPost() && $this->request->hasPost('domain')) {
             $src = $this->request->getPost('src', null, '127.0.0.1');
+
+            $domains = array_values(array_filter(
+                explode(',', preg_replace('/\s+/', '',  $this->request->getPost('domain'))),
+                fn($d) => $d !== ''
+            ));
+
             $backend = new Backend();
-            $response = json_decode($backend->configdpRun('unbound domain test', [
-                $this->request->getPost('domain'), $src
-            ]), true);
+            $mdl = new \OPNsense\Unbound\Unbound();
+            $policies = $mdl->dnsbl->blocklist->getNodeContent();
+            $types = $mdl->dnsbl->blocklist->getTemplateNode()->type->getNodeData();
+
+            $response = [];
+            foreach ($domains as $domain) {
+                $result = json_decode($backend->configdpRun('unbound domain test', [
+                    $domain, $src
+                ]), true);
+
+                if (!empty($result)) {
+                    foreach ($result as $key => $value) {
+                        if (isset($value['bl'])) {
+                            if (isset($types[$value['bl']]['optgroup'])) {
+                                $result[$key]['category'] = $types[$value['bl']]['optgroup'];
+                            }
+                            $result[$key]['bl'] = $types[$value['bl']]['value'] ?? $value['bl'];
+                        }
+                        if (isset($value['uuid'])) {
+                            $result[$key]['policy'] = $policies[$value['uuid']]['description'] ?? '';
+                        }
+                    }
+                    // Key by domain so results from different domains don't overwrite each other
+                    $response[$domain] = $result;
+                }
+            }
 
             if (!empty($response)) {
-                $mdl = new \OPNsense\Unbound\Unbound();
-                $policies = $mdl->dnsbl->blocklist->getNodeContent();
-                $types = $mdl->dnsbl->blocklist->getTemplateNode()->type->getNodeData();
-                foreach ($response as $key => $value) {
-                    if (isset($value['bl'])) {
-                        if (isset($types[$value['bl']]['optgroup'])) {
-                            $response[$key]['category'] = $types[$value['bl']]['optgroup'];
-                        }
-                        $response[$key]['bl'] = $types[$value['bl']]['value'] ?? $value['bl'];
-                    }
-                    if (isset($value['uuid'])) {
-                        $response[$key]['policy'] = $policies[$value['uuid']]['description'] ?? '';
-                    }
-                }
                 return $response;
             }
         }
         return ["status" => "error"];
     }
+
+    // public function testBlocklistAction()
+    // {
+    //     if ($this->request->isPost() && $this->request->hasPost('domain')) {
+    //         $src = $this->request->getPost('src', null, '127.0.0.1');
+    //         $backend = new Backend();
+    //         $response = json_decode($backend->configdpRun('unbound domain test', [
+    //             $this->request->getPost('domain'), $src
+    //         ]), true);
+
+    //         if (!empty($response)) {
+    //             $mdl = new \OPNsense\Unbound\Unbound();
+    //             $policies = $mdl->dnsbl->blocklist->getNodeContent();
+    //             $types = $mdl->dnsbl->blocklist->getTemplateNode()->type->getNodeData();
+    //             foreach ($response as $key => $value) {
+    //                 if (isset($value['bl'])) {
+    //                     if (isset($types[$value['bl']]['optgroup'])) {
+    //                         $response[$key]['category'] = $types[$value['bl']]['optgroup'];
+    //                     }
+    //                     $response[$key]['bl'] = $types[$value['bl']]['value'] ?? $value['bl'];
+    //                 }
+    //                 if (isset($value['uuid'])) {
+    //                     $response[$key]['policy'] = $policies[$value['uuid']]['description'] ?? '';
+    //                 }
+    //             }
+    //             return $response;
+    //         }
+    //     }
+    //     return ["status" => "error"];
+    // }
 }

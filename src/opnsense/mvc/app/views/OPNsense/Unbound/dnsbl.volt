@@ -50,20 +50,46 @@
 
         $("#tester_exec").click(function() {
             $("#tester_exec_spinner").show();
-            ajaxCall('/api/unbound/diagnostics/testBlocklist', {
+            ajaxCall('/api/unbound/diagnostics/test_blocklist', {
                 'domain': $("#tester_domain").val(),
                 'src': $("#tester_src").val(),
             }, function(data, status) {
-                $("#blocklist_tester_result").empty();
-                $("#blocklist_tester_result").append($("<span/>")).text("{{lang._('Result')}}");
-                if (data.status !== undefined || data.action !== undefined) {
-                    $("#blocklist_tester_result").append($("<pre  style='white-space: pre-wrap; word-break: keep-all;'/>").text(JSON.stringify(data, null, 2)));
+                var $result = $("#blocklist_tester_result").empty();
+                $result.append($("<strong/>")).text("{{lang._('Result:')}}");
+                $result.append($("<br>"))
+
+                if (data.status === "error") {
+                    $result.append($("<pre style='white-space: pre-wrap; word-break: keep-all;'/>").text(JSON.stringify(data, null, 2)));
                 } else {
-                    $("#blocklist_tester_result").append($("<span/>").text("-"));
+                    var domains = Object.keys(data);
+                    for (var i = 0; i < domains.length; i++) {
+                        var domain = domains[i];
+                        $result.append($("<span/>").text(domain));
+                        $result.append($("<pre style='white-space: pre-wrap; word-break: keep-all;'/>")
+                            .text(JSON.stringify(data[domain], null, 2)));
+                    }
+                
                 }
                 $("#tester_exec_spinner").hide();
             });
         });
+
+        // $("#tester_exec").click(function() {
+        //     $("#tester_exec_spinner").show();
+        //     ajaxCall('/api/unbound/diagnostics/test_blocklist', {
+        //         'domain': $("#tester_domain").val(),
+        //         'src': $("#tester_src").val(),
+        //     }, function(data, status) {
+        //         $("#blocklist_tester_result").empty();
+        //         $("#blocklist_tester_result").append($("<span/>")).text("{{lang._('Result')}}");
+        //         if (data.status !== undefined || data.action !== undefined) {
+        //             $("#blocklist_tester_result").append($("<pre  style='white-space: pre-wrap; word-break: keep-all;'/>").text(JSON.stringify(data, null, 2)));
+        //         } else {
+        //             $("#blocklist_tester_result").append($("<span/>").text("-"));
+        //         }
+        //         $("#tester_exec_spinner").hide();
+        //     });
+        // });
 
         updateServiceControlUI('unbound');
    });
@@ -90,7 +116,7 @@
             <tbody>
                 <tr>
                     <td>{{ lang._('Domain') }}</td>
-                    <td><input type="text" id='tester_domain'></td>
+                    <td><input type="text" id='tester_domain' style="field-sizing: content; width: auto; min-width: 348px; max-width: 75vw;"></td>
                 </tr>
                 <tr>
                     <td>{{ lang._('Source') }}</td>
