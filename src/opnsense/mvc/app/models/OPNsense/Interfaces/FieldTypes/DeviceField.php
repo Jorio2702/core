@@ -45,6 +45,9 @@ class DeviceField extends BaseListField
             $response = (new Backend())->configdRun('interface list assign-opts', false, 20);
             $response = json_decode($response, true) ?? [];
             foreach ($response as $key => $value) {
+                if (!empty($value['optgroup'])) {
+                    $value['optgroup'] = gettext($value['optgroup']);
+                }
                 self::$interfaces[$key] = $value;
             }
         }
@@ -65,5 +68,25 @@ class DeviceField extends BaseListField
             }
         }
         parent::setValue($value);
+    }
+
+    public function isConfigurable()
+    {
+        $value = $this->getValue();
+        if (isset(static::$interfaces[$value]['configurable'])) {
+            return static::$interfaces[$value]['configurable'];
+        }
+        /* default as per plugins_devices() */
+        return true;
+    }
+
+    public function canSpoofmac()
+    {
+        $value = $this->getValue();
+        if (isset(static::$interfaces[$value]['spoofmac'])) {
+            return static::$interfaces[$value]['spoofmac'];
+        }
+        /* default as per plugins_devices() */
+        return true;
     }
 }
